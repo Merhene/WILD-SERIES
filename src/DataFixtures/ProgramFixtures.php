@@ -7,6 +7,8 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
+
+
 class ProgramFixtures extends Fixture implements DependentFixtureInterface
 
 {
@@ -28,8 +30,7 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
             $program->setSynopsis($programName['synopsis']);
             $program->setCategory($this->getReference($programName['category']));
             $manager->persist($program);
-            // $this->addReference('category_' . $programName, $program);
-
+            $this->addReference('program_' . $programName['title'], $program);
 
         }
 

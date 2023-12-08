@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\ProgramRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: ProgramRepository::class)]
 class Program
@@ -23,9 +25,41 @@ class Program
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $poster = null;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(inversedBy: 'programs')]
     private ?Category $category = null;
+
+    #[ORM\OneToMany(mappedBy: 'program', targetEntity: Season::class)]
+    private Collection $seasons;
+
+    public function __construct()
+    {
+        $this->seasons = new ArrayCollection();
+    }
+
+      /**
+     * @return Collection<int, Episode>
+     */
+    public function getSeasons(): Collection
+    {
+        return $this->seasons;
+    }
+
+    public function addSeason(Season $season): void 
+    {
+        if (!$this->seasons->contains($season)) {
+            $this->seasons[] = $season;
+            $season->setProgram($this);
+        }
+    }
+
+    public function removeSeason(Season $season): void 
+    {
+        if ($this->seasons->removeElement($season)) {
+            if ($season->getProgram() === $this) {
+                $season->setProgram(null);
+            }
+        }
+    }
 
     public function getId(): ?int
     {
@@ -73,7 +107,7 @@ class Program
         return $this->category;
     }
 
-    public function setCategory(?Category $category): static
+    public function setCategory(?Category $category): self
     {
         $this->category = $category;
 
