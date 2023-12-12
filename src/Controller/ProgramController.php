@@ -7,20 +7,29 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ProgramRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-
+#[Route('/program')]
 class ProgramController extends AbstractController
 
 {
     #[Route('/programs', name: 'program_index')]
-    public function index(ProgramRepository $programRepository): Response
+    public function index(ProgramRepository $programRepository, RequestStack $requestStack) : Response
     {
+        $session = $requestStack->getSession();
+        if (!$session->has('total')) {
+            $session->set('total', 0); // if total doesn’t exist in session, it is initialized.
+        }
+    
+        $total = $session->get('total'); // get actual value in session with ‘total' key.
+        // ...
         $programs = $programRepository->findAll();
 
         return $this->render('Program/index.html.twig', [
@@ -37,7 +46,7 @@ class ProgramController extends AbstractController
         $form = $this->createForm(ProgramType::class, $program);
         $form->handleRequest($request);
         // Was the form submitted ?
-            if ($form->isSubmitted()) {
+            if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($program);
             $entityManager->flush();
             return $this->redirectToRoute('program_index');
