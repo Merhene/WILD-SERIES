@@ -25,11 +25,10 @@ class ProgramController extends AbstractController
     {
         $session = $requestStack->getSession();
         if (!$session->has('total')) {
-            $session->set('total', 0); // if total doesn’t exist in session, it is initialized.
+            $session->set('total', 0); 
         }
     
-        $total = $session->get('total'); // get actual value in session with ‘total' key.
-        // ...
+        $total = $session->get('total'); 
         $programs = $programRepository->findAll();
 
         return $this->render('Program/index.html.twig', [
@@ -38,7 +37,7 @@ class ProgramController extends AbstractController
     }
 
     #[Route('/new', name: 'new')]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, ProgramRepository $programRepository, EntityManagerInterface $entityManager): Response
     {
         $program = new Program();
 
@@ -49,11 +48,13 @@ class ProgramController extends AbstractController
             if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($program);
             $entityManager->flush();
+            $this->addFlash('success', 'The new program has been created');
             return $this->redirectToRoute('program_index');
             }
 
         return $this->render('program/new.html.twig', [
             'form' => $form,
+            'program' => $program,
         ]);
     }
     
@@ -100,6 +101,36 @@ class ProgramController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Program $program, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(ProgramType::class, $program);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            $this->addFlash('success', 'The new program has been updated');
+
+            return $this->redirectToRoute('program_index', [],
+            Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('program/edit.html.twig', [
+            'program' => $program,
+            'form' => $form,
+        ]);
+    }
+
+        #[Route('/{id}', name: 'delete', methods: ['POST'])]
+        public function delete(Request $request, Program $program, EntityManagerInterface $entityManager): Response
+        {
+            if ($this->isCsrfTokenValid('delete' .$program->getId(), $request->request->get('_token'))) {
+                $entityManager->remove($program);
+                $entityManager->flush();
+                $this->addFlash('danger', 'Deleted !');
+            }
+            return $this->redirectToRoute('program_index', [], Response::HTTP_SEE_OTHER);
+        }
 
 }
 
