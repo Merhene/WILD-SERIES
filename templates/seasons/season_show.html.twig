@@ -17,12 +17,12 @@
     <ul>
         {% for episode in season.episodes %}
             <li>
-                <a href="{{ path("episode_show", { program_id: program.id, season_id: season.id, episode_id: episode.id}) }}"><strong>Épisode {{ episode.number }}</strong></a>
+                <a href="{{ path("episode_show", { slug: program.slug, season_id: season.id, episode_id: episode.id}) }}"><strong>Épisode {{ episode.number }}</strong></a>
                 {{ episode.title }} - {{ episode.synopsis }}
         {% endfor %}
     </ul>
 
-    <a href="{{ path('program_show', {'id': program.id}) }}">
+    <a href="{{ path('program_show', {'slug': program.slug}) }}">
         Retour à la série
     </a>
 {% endblock %}

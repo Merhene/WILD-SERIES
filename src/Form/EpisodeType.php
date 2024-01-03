@@ -15,6 +15,7 @@ class EpisodeType extends AbstractType
             ->add('title')
             ->add('number')
             ->add('synopsis')
+            ->add('duration')
             ->add('season_id', null, ['choice_label' => 'number'])
         ;
     }
