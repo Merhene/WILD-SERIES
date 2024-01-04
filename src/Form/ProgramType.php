@@ -11,6 +11,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use App\Entity\Actor;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Vich\UploaderBundle\Form\Type\VichFileType;
 
 class ProgramType extends AbstractType
 {
@@ -20,7 +21,12 @@ class ProgramType extends AbstractType
             ->add('title', TextType::class)
             ->add('synopsis', TextType::class)
             ->add('poster', TextType::class)
-            ->add('category', EntityType::class, ['class' => Category::class, 'choice_label' => 'name']);
+            ->add('category', EntityType::class, ['class' => Category::class, 'choice_label' => 'name'])
+            ->add('posterFile', VichFileType::class, [
+                'required'      => false,
+                'allow_delete'  => true, // not mandatory, default is true
+                'download_uri' => true, // not mandatory, default is true
+            ]);
             $builder->add('actors', EntityType::class, ['class' => Actor::class, 'choice_label' => 'name', 'multiple' => true, 'expanded' => true, 'by_reference' => false,]);
         }
 
